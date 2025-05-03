@@ -138,50 +138,60 @@ def analyze_resume():
         flash(f'An unexpected error occurred: {str(e)}')
         return redirect(url_for('index'))
 
-@app.route('/download/<format>')
+@app.route('/download/<format>', methods=['GET'])
 def download_resume(format):
-    if 'rewritten_resume' not in session:
-        flash('No resume data available. Please analyze a resume first.')
-        return redirect(url_for('index'))
-    
-    rewritten_resume = session.get('rewritten_resume')
-    original_filename = session.get('original_filename', 'resume')
-    base_filename = original_filename.rsplit('.', 1)[0]
-    
-    # Check if rewritten_resume contains an error message
-    error_messages = [
-        "Unable to rewrite resume at this time",
-        "Error rewriting resume",
-        "API request failed"
-    ]
-    
-    if any(error_msg in rewritten_resume for error_msg in error_messages):
-        flash('An error occurred while generating the resume. Please try again.')
-        return redirect(url_for('index'))
+    try:
+        if 'rewritten_resume' not in session:
+            flash('No resume data available. Please analyze a resume first.')
+            return redirect(url_for('index'))
         
-    # Create the file in memory
-    if format == 'docx':
-        output = document_processor.create_docx(rewritten_resume)
-        mimetype = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        filename = f"{base_filename}_rewritten.docx"
-    elif format == 'pdf':
-        output = document_processor.create_pdf(rewritten_resume)
-        mimetype = 'application/pdf'
-        filename = f"{base_filename}_rewritten.pdf"
-    else:
-        flash('Invalid format specified')
+        rewritten_resume = session.get('rewritten_resume')
+        if not rewritten_resume:
+            flash('Resume content is missing. Please try analyzing your resume again.')
+            return redirect(url_for('index'))
+            
+        original_filename = session.get('original_filename', 'resume')
+        base_filename = original_filename.rsplit('.', 1)[0]
+        
+        # Check if rewritten_resume contains an error message
+        error_messages = [
+            "Unable to rewrite resume at this time",
+            "Error rewriting resume",
+            "API request failed"
+        ]
+        
+        if any(error_msg in rewritten_resume for error_msg in error_messages):
+            flash('An error occurred while generating the resume. Please try again.')
+            return redirect(url_for('index'))
+        
+        # Create the file in memory
+        if format == 'docx':
+            output = document_processor.create_docx(rewritten_resume)
+            mimetype = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            filename = f"{base_filename}_rewritten.docx"
+        elif format == 'pdf':
+            output = document_processor.create_pdf(rewritten_resume)
+            mimetype = 'application/pdf'
+            filename = f"{base_filename}_rewritten.pdf"
+        else:
+            flash('Invalid format specified')
+            return redirect(url_for('index'))
+            
+        # Create a file-like object
+        file_obj = io.BytesIO(output.getvalue())
+        file_obj.seek(0)
+        
+        return send_file(
+            file_obj,
+            mimetype=mimetype,
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        logger.error(f"Error generating downloadable file: {str(e)}")
+        flash('An error occurred while generating the downloadable file. Please try again.')
         return redirect(url_for('index'))
-    
-    # Create a file-like object
-    file_obj = io.BytesIO(output.getvalue())
-    file_obj.seek(0)
-    
-    return send_file(
-        file_obj,
-        mimetype=mimetype,
-        as_attachment=True,
-        download_name=filename
-    )
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
