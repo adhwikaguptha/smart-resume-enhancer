@@ -76,14 +76,37 @@ def analyze_resume():
                 initial_score_normalized = int(initial_score * 100)
                 
                 # Get AI suggestions
-                suggestions = ai_processor.get_improvement_suggestions(resume_text, job_description)
+                try:
+                    suggestions = ai_processor.get_improvement_suggestions(resume_text, job_description)
+                    # Check if suggestions contain an error message
+                    if "Unable to generate suggestions" in suggestions:
+                        logger.warning("Failed to generate suggestions")
+                        flash("Unable to generate suggestions. Please try again later.")
+                        suggestions = "Unable to generate suggestions at this time."
+                except Exception as e:
+                    logger.error(f"Error getting suggestions: {str(e)}")
+                    suggestions = "Unable to generate suggestions at this time."
                 
                 # Get rewritten resume
-                rewritten_resume = ai_processor.rewrite_resume(resume_text, job_description)
-                
-                # Calculate new ATS score
-                new_score = document_processor.calculate_ats_score(rewritten_resume, job_description)
-                new_score_normalized = int(new_score * 100)
+                try:
+                    rewritten_resume = ai_processor.rewrite_resume(resume_text, job_description)
+                    # Check if rewritten_resume contains an error message
+                    if "Unable to rewrite resume" in rewritten_resume:
+                        logger.warning("Failed to rewrite resume")
+                        flash("Unable to rewrite the resume. Please try again later.")
+                        rewritten_resume = resume_text  # Use original resume as fallback
+                        new_score = initial_score  # Use the same score
+                        new_score_normalized = initial_score_normalized
+                    else:
+                        # Calculate new ATS score
+                        new_score = document_processor.calculate_ats_score(rewritten_resume, job_description)
+                        new_score_normalized = int(new_score * 100)
+                except Exception as e:
+                    logger.error(f"Error rewriting resume: {str(e)}")
+                    flash("Unable to rewrite the resume. Please try again later.")
+                    rewritten_resume = resume_text  # Use original resume as fallback
+                    new_score = initial_score  # Use the same score
+                    new_score_normalized = initial_score_normalized
                 
                 # Store data in session
                 session['resume_text'] = resume_text
@@ -125,6 +148,17 @@ def download_resume(format):
     original_filename = session.get('original_filename', 'resume')
     base_filename = original_filename.rsplit('.', 1)[0]
     
+    # Check if rewritten_resume contains an error message
+    error_messages = [
+        "Unable to rewrite resume at this time",
+        "Error rewriting resume",
+        "API request failed"
+    ]
+    
+    if any(error_msg in rewritten_resume for error_msg in error_messages):
+        flash('An error occurred while generating the resume. Please try again.')
+        return redirect(url_for('index'))
+        
     # Create the file in memory
     if format == 'docx':
         output = document_processor.create_docx(rewritten_resume)
