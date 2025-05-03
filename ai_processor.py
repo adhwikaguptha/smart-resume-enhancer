@@ -77,12 +77,7 @@ JOB DESCRIPTION:
 RESUME:
 {resume_text}
 
-Provide 4-6 specific, actionable changes that would make this resume more effective at passing ATS screening for this job. For each suggestion:
-1. Clearly identify what specific aspect of the resume should be changed
-2. Provide a concrete recommendation for the improvement
-3. Explain why this change will increase the ATS score
-
-Format your suggestions with bullet points, and be sure to include examples of keywords from the job description that should be incorporated."""
+Please provide 3-5 specific, actionable suggestions to improve this resume's ATS match score for the job description above. Format with bullet points."""
 
     
     try:
@@ -115,8 +110,6 @@ Please rewrite this resume to maximize its ATS match score while maintaining the
 5. Quantify achievements where possible
 6. Keep a professional tone
 7. Maintain the same general length as the original
-
-Provide ONLY the rewritten resume text, without any explanation of changes or formatting notes. Focus exclusively on delivering a clean, optimized resume document ready for immediate use.
 
 Do NOT invent work experience or qualifications that aren't mentioned in the original resume."""
 
