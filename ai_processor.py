@@ -22,16 +22,22 @@ def call_together_api(prompt, max_tokens=800):
     Call the Together.ai API with the given prompt
     """
     api_key = get_api_key()
-    api_url = "https://api.together.xyz/v1/completions"
+    api_url = "https://api.together.xyz/v1/chat/completions"
     
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     
+    # Format messages for the chat completions API
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant that provides resume improvement suggestions."},
+        {"role": "user", "content": prompt}
+    ]
+    
     data = {
-        "model": "llama-3-8b-instruct",
-        "prompt": prompt,
+        "model": "meta-llama/Llama-3-8b-chat-hf",
+        "messages": messages,
         "max_tokens": max_tokens,
         "temperature": 0.7,
         "top_p": 0.9,
@@ -46,7 +52,8 @@ def call_together_api(prompt, max_tokens=800):
         
         result = response.json()
         if 'choices' in result and len(result['choices']) > 0:
-            generated_text = result['choices'][0]['text'].strip()
+            # The chat completions API returns content in a different format
+            generated_text = result['choices'][0]['message']['content'].strip()
             return generated_text
         else:
             logger.error(f"Unexpected API response format: {result}")
@@ -60,22 +67,8 @@ def get_improvement_suggestions(resume_text, job_description):
     """
     Use Together.ai's API with LLaMA 3 to suggest improvements
     """
-    # Create the prompt
-    prompt = f"""<|im_start|>system
-You are an expert ATS (Applicant Tracking System) consultant who helps job seekers improve their resumes to better match job descriptions. Your task is to analyze the resume against the job description and provide 3-5 specific, actionable suggestions to improve the ATS match score.
-
-Focus on:
-1. Keyword alignment
-2. Skills and qualifications
-3. Experience relevance
-4. Achievements that matter for this role
-5. Professional formatting
-
-Provide clear, bulleted suggestions that the applicant can immediately implement.
-<|im_end|>
-
-<|im_start|>user
-REVIEW THE FOLLOWING RESUME AGAINST THIS JOB DESCRIPTION:
+    # Create the prompt for Chat API
+    prompt = f"""REVIEW THE FOLLOWING RESUME AGAINST THIS JOB DESCRIPTION:
 
 JOB DESCRIPTION:
 {job_description}
@@ -83,12 +76,8 @@ JOB DESCRIPTION:
 RESUME:
 {resume_text}
 
-Please provide 3-5 specific, actionable suggestions to improve this resume's ATS match score for the job description above.
-<|im_end|>
+Please provide 3-5 specific, actionable suggestions to improve this resume's ATS match score for the job description above. Format with bullet points."""
 
-<|im_start|>assistant
-<answer>
-"""
     
     try:
         suggestions = call_together_api(prompt, max_tokens=800)
@@ -101,23 +90,9 @@ def rewrite_resume(resume_text, job_description):
     """
     Use Together.ai's API with LLaMA 3 to rewrite the resume
     """
-    # Create the prompt
-    prompt = f"""<|im_start|>system
-You are an expert resume writer who specializes in optimizing resumes to pass ATS (Applicant Tracking System) scans. Your task is to rewrite the provided resume to better match the job description, focusing on improving keyword alignment, highlighting relevant experience, and emphasizing transferable skills.
-
-Follow these guidelines:
-1. Maintain the same section structure as the original resume
-2. Preserve all contact information and personal details
-3. Highlight relevant skills and experience that match the job description
-4. Incorporate keywords from the job description naturally
-5. Quantify achievements where possible
-6. Keep a professional tone
-7. Maintain the same general length as the original
-
-Do NOT invent work experience or qualifications that aren't mentioned in the original resume.
-<|im_end|>
-
-<|im_start|>user
+    # Create the prompt for Chat API
+    prompt = f"""You are an expert resume writer who specializes in optimizing resumes to pass ATS (Applicant Tracking System) scans.
+    
 REWRITE THE FOLLOWING RESUME TO BETTER MATCH THIS JOB DESCRIPTION:
 
 JOB DESCRIPTION:
@@ -126,12 +101,17 @@ JOB DESCRIPTION:
 ORIGINAL RESUME:
 {resume_text}
 
-Please rewrite this resume to maximize its ATS match score while maintaining the person's honest work history and qualifications.
-<|im_end|>
+Please rewrite this resume to maximize its ATS match score while maintaining the person's honest work history and qualifications. Follow these guidelines:
+1. Maintain the same section structure as the original resume
+2. Preserve all contact information and personal details
+3. Highlight relevant skills and experience that match the job description
+4. Incorporate keywords from the job description naturally
+5. Quantify achievements where possible
+6. Keep a professional tone
+7. Maintain the same general length as the original
 
-<|im_start|>assistant
-<answer>
-"""
+Do NOT invent work experience or qualifications that aren't mentioned in the original resume."""
+
     
     try:
         rewritten_resume = call_together_api(prompt, max_tokens=1500)
