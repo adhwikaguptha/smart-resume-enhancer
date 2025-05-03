@@ -22,22 +22,17 @@ def call_together_api(prompt, max_tokens=800):
     Call the Together.ai API with the given prompt
     """
     api_key = get_api_key()
-    api_url = "https://api.together.xyz/v1/chat/completions"
+    api_url = "https://api.together.xyz/inference"
     
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     
-    # Format messages for the chat completions API
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant that provides resume improvement suggestions."},
-        {"role": "user", "content": prompt}
-    ]
-    
+    # Format messages for the inference API
     data = {
-        "model": "meta-llama/Llama-3-8b-chat-hf",
-        "messages": messages,
+        "model": "togethercomputer/llama-3-8b-instruct",
+        "prompt": prompt,
         "max_tokens": max_tokens,
         "temperature": 0.7,
         "top_p": 0.9,
@@ -51,9 +46,11 @@ def call_together_api(prompt, max_tokens=800):
         response.raise_for_status()  # Raise exception for HTTP errors
         
         result = response.json()
-        if 'choices' in result and len(result['choices']) > 0:
-            # The chat completions API returns content in a different format
-            generated_text = result['choices'][0]['message']['content'].strip()
+        logger.debug(f"API response: {result}")
+        
+        if 'output' in result and 'text' in result['output']:
+            # The inference API returns content in output.text
+            generated_text = result['output']['text'].strip()
             return generated_text
         else:
             logger.error(f"Unexpected API response format: {result}")
