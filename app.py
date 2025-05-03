@@ -1,7 +1,6 @@
 import os
 import logging
 from flask import Flask, render_template, request, jsonify, flash, send_file, redirect, url_for, session
-from flask_session import Session
 from werkzeug.utils import secure_filename
 import tempfile
 import uuid
@@ -22,16 +21,6 @@ logger.addHandler(fh)
 # Configure Flask application
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "default-secret-key-for-development")
-app.config['SESSION_TYPE'] = 'filesystem'  # Use file-based sessions instead of cookies
-app.config['SESSION_FILE_DIR'] = os.path.join(tempfile.gettempdir(), 'flask_sessions')
-app.config['SESSION_FILE_THRESHOLD'] = 100  # Maximum number of session files
-app.config['SESSION_USE_SIGNER'] = True  # Sign session data for added security
-
-# Create session directory if it doesn't exist
-os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
-
-# Initialize Flask-Session
-Session(app)
 
 # Configure upload settings
 ALLOWED_EXTENSIONS = {'pdf', 'docx'}
@@ -119,13 +108,15 @@ def analyze_resume():
                     new_score = initial_score  # Use the same score
                     new_score_normalized = initial_score_normalized
                 
-                # Store data in session
-                session['resume_text'] = resume_text
-                session['rewritten_resume'] = rewritten_resume
-                session['job_description'] = job_description
+                # Store large data as temporary files instead of in session
+                rewritten_resume_path = os.path.join(TEMP_FOLDER, f"{session_id}_rewritten_resume.txt")
+                with open(rewritten_resume_path, 'w') as f:
+                    f.write(rewritten_resume)
+                
+                # Store only paths and metadata in session to avoid cookie size limits
+                session['rewritten_resume_path'] = rewritten_resume_path
                 session['initial_score'] = initial_score_normalized
                 session['new_score'] = new_score_normalized
-                session['suggestions'] = suggestions
                 
                 return render_template('index.html', 
                                       initial_score=initial_score_normalized,
@@ -152,28 +143,21 @@ def analyze_resume():
 @app.route('/download/<format>', methods=['GET'])
 def download_resume(format):
     try:
-        if 'rewritten_resume' not in session:
+        if 'rewritten_resume_path' not in session:
             flash('No resume data available. Please analyze a resume first.')
             return redirect(url_for('index'))
         
-        rewritten_resume = session.get('rewritten_resume')
-        if not rewritten_resume:
-            flash('Resume content is missing. Please try analyzing your resume again.')
+        rewritten_resume_path = session.get('rewritten_resume_path')
+        if not rewritten_resume_path or not os.path.exists(rewritten_resume_path):
+            flash('Resume content is missing or expired. Please try analyzing your resume again.')
             return redirect(url_for('index'))
+            
+        # Read the rewritten resume from the temporary file
+        with open(rewritten_resume_path, 'r') as f:
+            rewritten_resume = f.read()
             
         original_filename = session.get('original_filename', 'resume')
         base_filename = original_filename.rsplit('.', 1)[0]
-        
-        # Check if rewritten_resume contains an error message
-        error_messages = [
-            "Unable to rewrite resume at this time",
-            "Error rewriting resume",
-            "API request failed"
-        ]
-        
-        if any(error_msg in rewritten_resume for error_msg in error_messages):
-            flash('An error occurred while generating the resume. Please try again.')
-            return redirect(url_for('index'))
         
         # Create the file in memory
         if format == 'docx':
