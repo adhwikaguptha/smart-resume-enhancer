@@ -7,38 +7,38 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-def get_hf_api_token():
+def get_groq_api_key():
     """
-    Get Hugging Face API token from environment variables
+    Get Groq API key from environment variables
     """
-    api_token = os.environ.get('HUGGINGFACEHUB_API_TOKEN')
-    if not api_token:
-        logger.warning("HUGGINGFACEHUB_API_TOKEN environment variable not set")
-        raise ValueError("HUGGINGFACEHUB_API_TOKEN environment variable not set. Please set this to use AI features.")
-    return api_token
+    api_key = os.environ.get('GROQ_API_KEY')
+    if not api_key:
+        logger.warning("GROQ_API_KEY environment variable not set")
+        raise ValueError("GROQ_API_KEY environment variable not set. Please set this to use AI features.")
+    return api_key
 
-def call_hf_api(prompt, max_new_tokens=800):
+def call_groq_api(prompt, max_tokens=800):
     """
-    Call the Hugging Face Hub API with the given prompt
-    Using the TinyLlama/TinyLlama-1.1B-Chat-v1.0 model (free to use)
+    Call the Groq API with the given prompt
+    Using the llama2-70b-4096 model
     """
-    api_token = get_hf_api_token()
-    api_url = "https://api-inference.huggingface.co/models/TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    api_key = get_groq_api_key()
+    api_url = "https://api.groq.com/openai/v1/chat/completions"
     
     headers = {
-        "Authorization": f"Bearer {api_token}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     
-    # Format for the Hugging Face inference API
+    # Format for the Groq chat completions API
     data = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": max_new_tokens,
-            "temperature": 0.7,
-            "top_p": 0.9,
-            "do_sample": True
-        }
+        "model": "llama2-70b-4096",
+        "messages": [
+            {"role": "system", "content": "You are a helpful resume optimization assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": max_tokens,
+        "temperature": 0.7,
     }
     
     logger.info(f"API request to: {api_url}")
@@ -49,23 +49,13 @@ def call_hf_api(prompt, max_new_tokens=800):
         
         logger.info(f"API response status: {response.status_code}")
         
-        # Hugging Face API typically returns a list with a single text element
+        # Groq API returns in OpenAI format
         result = response.json()
         logger.debug(f"API response: {result}")
         
-        if isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict) and 'generated_text' in result[0]:
-            # Standard inference API response format
-            generated_text = result[0]['generated_text']
-            # Remove the prompt from the response if it's included
-            if generated_text.startswith(prompt):
-                generated_text = generated_text[len(prompt):]
-            return generated_text.strip()
-        elif isinstance(result, dict) and 'generated_text' in result:
-            # Alternative response format
-            generated_text = result['generated_text']
-            if generated_text.startswith(prompt):
-                generated_text = generated_text[len(prompt):]
-            return generated_text.strip()
+        if 'choices' in result and len(result['choices']) > 0 and 'message' in result['choices'][0] and 'content' in result['choices'][0]['message']:
+            generated_text = result['choices'][0]['message']['content'].strip()
+            return generated_text
         else:
             logger.error(f"Unexpected API response format: {result}")
             raise ValueError("Unexpected API response format")
@@ -76,7 +66,7 @@ def call_hf_api(prompt, max_new_tokens=800):
 
 def get_improvement_suggestions(resume_text, job_description):
     """
-    Use Hugging Face Hub API to get improvement suggestions
+    Use Groq API to get improvement suggestions
     """
     # Create the prompt for the model
     prompt = f"""REVIEW THE FOLLOWING RESUME AGAINST THIS JOB DESCRIPTION:
@@ -91,7 +81,7 @@ Please provide 3-5 specific, actionable suggestions to improve this resume's ATS
 
     
     try:
-        suggestions = call_hf_api(prompt, max_new_tokens=800)
+        suggestions = call_groq_api(prompt, max_tokens=800)
         return suggestions
     except Exception as e:
         logger.error(f"Error getting improvement suggestions: {str(e)}")
@@ -99,7 +89,7 @@ Please provide 3-5 specific, actionable suggestions to improve this resume's ATS
 
 def rewrite_resume(resume_text, job_description):
     """
-    Use Hugging Face Hub API to rewrite the resume
+    Use Groq API to rewrite the resume
     """
     # Create the prompt for the model
     prompt = f"""You are an expert resume writer who specializes in optimizing resumes to pass ATS (Applicant Tracking System) scans.
@@ -125,7 +115,7 @@ Do NOT invent work experience or qualifications that aren't mentioned in the ori
 
     
     try:
-        rewritten_resume = call_hf_api(prompt, max_new_tokens=1500)
+        rewritten_resume = call_groq_api(prompt, max_tokens=1500)
         return rewritten_resume
     except Exception as e:
         logger.error(f"Error rewriting resume: {str(e)}")
