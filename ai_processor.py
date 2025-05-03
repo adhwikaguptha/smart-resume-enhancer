@@ -32,7 +32,7 @@ def call_groq_api(prompt, max_tokens=800):
     
     # Format for the Groq chat completions API
     data = {
-        "model": "llama2-70b-4096",
+        "model": "llama3-8b-8192",
         "messages": [
             {"role": "system", "content": "You are a helpful resume optimization assistant."},
             {"role": "user", "content": prompt}

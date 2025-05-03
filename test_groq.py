@@ -31,7 +31,7 @@ def test_groq_api():
     
     # Simple prompt for testing
     data = {
-        "model": "llama2-70b-4096",
+        "model": "llama3-8b-8192",
         "messages": [
             {"role": "system", "content": "You are a helpful resume optimization assistant."},
             {"role": "user", "content": "Write a brief sentence about why ATS optimization is important."}
