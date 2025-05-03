@@ -1,0 +1,62 @@
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+/* Card styling */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    border-top-left-radius: 0.5rem !important;
+    border-top-right-radius: 0.5rem !important;
+    border-bottom: none;
+}
+
+/* Content areas */
+.suggestions-content,
+.rewritten-resume-content,
+.job-description-content,
+.original-resume-content {
+    white-space: pre-line;
+    line-height: 1.8;
+    padding: 0.5rem;
+}
+
+.suggestions-content {
+    font-size: 1.1rem;
+}
+
+/* Score styling */
+.text-danger {
+    color: var(--bs-danger) !important;
+}
+
+.text-warning {
+    color: var(--bs-warning) !important;
+}
+
+.text-success {
+    color: var(--bs-success) !important;
+}
+
+/* Footer styling */
+.footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .display-1 {
+        font-size: 3rem;
+    }
+    
+    h2.card-title {
+        font-size: 1.5rem;
+    }
+}
