@@ -1,6 +1,7 @@
 import os
 import logging
 from flask import Flask, render_template, request, jsonify, flash, send_file, redirect, url_for, session
+from flask_session import Session
 from werkzeug.utils import secure_filename
 import tempfile
 import uuid
@@ -21,6 +22,16 @@ logger.addHandler(fh)
 # Configure Flask application
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "default-secret-key-for-development")
+app.config['SESSION_TYPE'] = 'filesystem'  # Use file-based sessions instead of cookies
+app.config['SESSION_FILE_DIR'] = os.path.join(tempfile.gettempdir(), 'flask_sessions')
+app.config['SESSION_FILE_THRESHOLD'] = 100  # Maximum number of session files
+app.config['SESSION_USE_SIGNER'] = True  # Sign session data for added security
+
+# Create session directory if it doesn't exist
+os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
+
+# Initialize Flask-Session
+Session(app)
 
 # Configure upload settings
 ALLOWED_EXTENSIONS = {'pdf', 'docx'}
