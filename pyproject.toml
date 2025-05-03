@@ -10,6 +10,7 @@ dependencies = [
     "flask-sqlalchemy>=3.1.1",
     "gunicorn>=23.0.0",
     "numpy>=2.2.5",
+    "openai>=1.77.0",
     "pdfminer-six>=20250416",
     "pillow>=11.2.1",
     "psycopg2-binary>=2.9.10",

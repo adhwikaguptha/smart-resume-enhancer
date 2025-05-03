@@ -22,23 +22,23 @@ def call_together_api(prompt, max_tokens=800):
     Call the Together.ai API with the given prompt
     """
     api_key = get_api_key()
-    api_url = "https://api.together.xyz/inference"
+    api_url = "https://api.together.xyz/v1/completions"
     
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     
-    # Format messages for the inference API
+    # Format for the standard completions API
     data = {
         "model": "togethercomputer/llama-3-8b-instruct",
-        "prompt": prompt,
+        "prompt": f"<|begin_of_text|><|user|>\n{prompt}<|end_of_turn|>\n<|assistant|>",
         "max_tokens": max_tokens,
         "temperature": 0.7,
         "top_p": 0.9,
         "top_k": 50,
         "repetition_penalty": 1.0,
-        "stop": ["<|im_end|>", "</answer>"]
+        "stop": ["<|end_of_turn|>", "<|end_of_text|>"]
     }
     
     try:
@@ -46,11 +46,11 @@ def call_together_api(prompt, max_tokens=800):
         response.raise_for_status()  # Raise exception for HTTP errors
         
         result = response.json()
-        logger.debug(f"API response: {result}")
+        logger.error(f"API response: {result}")
         
-        if 'output' in result and 'text' in result['output']:
-            # The inference API returns content in output.text
-            generated_text = result['output']['text'].strip()
+        if 'choices' in result and len(result['choices']) > 0 and 'text' in result['choices'][0]:
+            # The completions API returns content in choices[0].text
+            generated_text = result['choices'][0]['text'].strip()
             return generated_text
         else:
             logger.error(f"Unexpected API response format: {result}")
