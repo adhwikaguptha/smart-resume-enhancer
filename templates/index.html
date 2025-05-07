@@ -72,17 +72,7 @@
                 
                 {% if has_detailed_analysis %}
                 <div class="mt-4">
-                    <h4 class="mb-3">Advanced Semantic Analysis</h4>
-                    <div class="alert alert-secondary mb-3">
-                        <strong><i class="fas fa-info-circle me-2"></i>About This Analysis</strong>
-                        <p class="small mb-0">This assessment uses transformer-based scoring simulations like those in actual ATS systems (Workday, Greenhouse, Lever, Taleo) and includes:</p>
-                        <ul class="small mb-0">
-                            <li>TextRank-like summarization to identify central concepts</li>
-                            <li>Semantic similarity detection between different phrasings</li>
-                            <li>Contextual keyword relevance assessment</li>
-                            <li>Part-of-speech tagging for proper verb usage</li>
-                        </ul>
-                    </div>
+                    <h4 class="mb-3">Detailed Analysis</h4>
                     <div class="detailed-analysis card">
                         <div class="card-body">
                             <div class="analysis-content">
@@ -100,16 +90,6 @@
                 <h2 class="card-title mb-0"><i class="fas fa-lightbulb me-2"></i>AI-Powered Improvement Suggestions</h2>
             </div>
             <div class="card-body">
-                <div class="alert alert-info mb-3">
-                    <i class="fas fa-robot me-2"></i> These suggestions use Groq's LLaMA 3 70B model to apply:
-                    <ul class="mb-0 mt-2 small">
-                        <li><strong>Keyword Optimization:</strong> Extracted and matched keywords directly from the job description</li>
-                        <li><strong>ATS Compliance:</strong> Improved formatting for better parsing by ATS systems</li>
-                        <li><strong>Semantic Alignment:</strong> Reworded content to match how ATS systems scan for intent and meaning</li>
-                        <li><strong>Modern Resume Style:</strong> Enhanced with action-oriented language focused on outcomes</li>
-                        <li><strong>Role Fit & Human Appeal:</strong> Aligned tone with what hiring managers seek in candidates</li>
-                    </ul>
-                </div>
                 <div class="suggestions-content">
                     {{ suggestions|safe|replace('\n', '<br>')|replace('•', '<span class="text-primary me-2">•</span>')|replace('- ', '<span class="text-primary me-2">•</span>') }}
                 </div>
@@ -129,16 +109,6 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="alert alert-info mb-3">
-                    <i class="fas fa-magic me-2"></i> Your resume has been optimized using Groq's LLaMA 3 70B model with these advanced techniques:
-                    <ul class="mb-0 mt-2">
-                        <li><strong>Keyword Optimization:</strong> Extracted keywords directly from the job description and integrated them into your resume</li>
-                        <li><strong>ATS Compliance:</strong> Formatted with clear section headings and bullet points for ATS readability</li>
-                        <li><strong>Semantic Alignment:</strong> Reworded content to match how ATS systems scan for intent</li>
-                        <li><strong>Modern Resume Style:</strong> Used concise, action-oriented language focused on outcomes</li>
-                        <li><strong>Role Fit:</strong> Aligned tone with what human hiring managers seek (curiosity, adaptability, initiative)</li>
-                    </ul>
-                </div>
                 <div class="rewritten-resume-content">
                     {{ rewritten_resume|safe|replace('\n', '<br>') }}
                 </div>

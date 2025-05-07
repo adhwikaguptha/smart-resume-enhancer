@@ -80,15 +80,10 @@ def call_groq_api(prompt, system_prompt="You are a helpful resume optimization a
 def calculate_semantic_matching_score(resume_text, job_description):
     """
     Use Groq API to calculate a semantic matching score between resume and job description
-    using techniques that simulate advanced transformer-based scoring systems
+    using advanced analysis techniques
     """
-    system_prompt = """You are an AI trained to evaluate how well a resume matches a job description by simulating these advanced NLP techniques:
-1. TextRank-like summarization to identify central phrases and concepts
-2. Semantic similarity detection between different phrasings with similar intent
-3. Transformer-based scoring simulations like those used in modern ATS systems
-4. Contextual keyword relevance assessment beyond simple word-matching
-
-Your goal is to provide a detailed analysis with an overall percentage match score."""
+    system_prompt = """You are an AI trained to evaluate how well a resume matches a job description.
+Your goal is to provide a detailed analysis with an overall percentage match score without any explanatory text about your methodology."""
     
     prompt = f"""ANALYZE THE FOLLOWING RESUME AGAINST THIS JOB DESCRIPTION:
 
@@ -98,37 +93,24 @@ JOB DESCRIPTION:
 RESUME:
 {resume_text}
 
-Simulate a sophisticated ATS scoring system by analyzing:
+Provide a detailed match analysis that includes:
 
-1. Keyword Optimization:
-   - Identify and extract key terms from the job description
-   - Assess how well these appear in the resume (exact matches and semantic equivalents)
-   - Consider keyword placement and density (headers, summary, experience sections)
+1. An exact percentage score (e.g., 78%) representing how well the resume matches the job
+2. Key strengths of the resume relative to the job description
+3. Gap areas where the resume could be improved
+4. Analysis of keyword matching and relevance
 
-2. Semantic Matching:
-   - Detect paraphrased concepts and skills (not just exact keyword matches)
-   - Evaluate alignment between job requirements and candidate's experience
-   - Consider contextual relevance of skills mentioned
-
-3. ATS Scoring Simulation:
-   - Simulate how actual ATS systems would score based on:
-     * Keyword density and placement
-     * Phrase alignment with job requirements
-     * Structure and formatting friendliness 
-     * Action verb usage and appropriateness
-
-4. Role-Specific Evaluation:
-   - Assess match for both technical skills and soft skills
-   - Consider both stated and implied qualifications
-   - Evaluate overall career trajectory alignment with role
-
-Format your response as:
-MATCH SCORE: XX%
-
-ANALYSIS:
-- Key strengths: [list key matching points]
-- Gap areas: [list key missing elements]
-- Keyword analysis: [analysis of key terms, their placement, and contextual relevance]"""
+Important formatting instructions:
+- Begin with the match score in this exact format: "MATCH SCORE: XX%"
+- Do NOT include any explanation about how you calculated the score
+- Do NOT use bullet points, asterisks or other symbols
+- Structure the analysis with these exact headings:
+  "Key strengths:"
+  "Gap areas:"
+  "Keyword analysis:"
+- Do NOT include any introductory or concluding text
+- Do NOT mention your AI capabilities or methodology
+- Focus solely on the resume and job description content"""
 
     try:
         result = call_groq_api(prompt, system_prompt=system_prompt, max_tokens=1000, temperature=0.2)
@@ -142,15 +124,8 @@ def get_improvement_suggestions(resume_text, job_description):
     Use Groq API to get improvement suggestions with advanced NLP techniques
     based on modern ATS compliance standards and semantic alignment
     """
-    system_prompt = """You are an expert resume optimization assistant with advanced NLP capabilities:
-1. Part-of-speech tagging to verify verb usage (e.g., "developed UI" > "UI Developer")
-2. Semantic alignment to match resume content with ATS and recruiter intent patterns
-3. Keyword extraction directly from the job description
-4. Simulated ATS scoring based on systems like Workday, Greenhouse, Lever, and Taleo
-5. Context-aware summarization to identify key elements
-6. Resume-to-job description alignment through semantic similarity
-
-Your job is to provide specific, actionable suggestions to improve a resume's match score."""
+    system_prompt = """You are an expert resume optimization assistant with advanced NLP capabilities.
+Your job is to provide specific, actionable suggestions to improve a resume's match score, without any introductory text or explanations about your methodology."""
 
     prompt = f"""ANALYZE THE FOLLOWING RESUME AGAINST THIS JOB DESCRIPTION:
 
@@ -165,17 +140,24 @@ Provide 4-6 specific, actionable suggestions to improve this resume's ATS match 
 2. Explain why it's a problem for ATS matching
 3. Provide a concrete example of how to fix it
 
-Apply these advanced ATS optimization techniques:
-- Keyword Optimization: Extract and match keywords directly from the job description
-- ATS Compliance: Focus on simple formatting, clear section headings, and parsable structure
-- Semantic Alignment: Reword content to align with how ATS systems scan for intent
-- Modern Resume Style: Use concise action-oriented language focusing on outcomes
-- Role Fit & Human Appeal: Align tone with what the human hiring manager wants to see
+Important formatting instructions:
+- Do NOT use bullet points, symbols, or asterisks in your response
+- Do NOT include any explanation about how you generated these suggestions
+- Number each suggestion (1., 2., 3., etc.)
+- Include a clear heading for each suggestion
+- For each "before" and "after" example, clearly label them as "BEFORE:" and "AFTER:"
+- Do NOT include any introductory or concluding text
 
-Format each suggestion with bullet points and provide specific examples. For each suggestion, include:
-- The issue
-- Why it matters for ATS
-- A "Before" and "After" example showing the improvement"""
+For example, format your suggestions like this:
+
+1. SUGGESTION HEADING
+The specific issue in detail. 
+Why this matters for ATS matching.
+BEFORE: [original text]
+AFTER: [improved text]
+
+2. SUGGESTION HEADING
+[and so on...]"""
 
     try:
         suggestions = call_groq_api(prompt, system_prompt=system_prompt, max_tokens=1200, temperature=0.3)
@@ -187,18 +169,12 @@ Format each suggestion with bullet points and provide specific examples. For eac
 def rewrite_resume(resume_text, job_description):
     """
     Use Groq API to rewrite the resume with advanced NLP techniques
-    that simulate capabilities of modern AI systems while using only Groq's LLaMA 3 model
+    while preserving the original layout and structure
     """
-    system_prompt = """You are an expert resume optimization AI, simulating these advanced capabilities:
-1. Context-aware summarization - identifying key elements from both resume and job description
-2. Semantic similarity detection - understanding relationships between different phrasings
-3. Resume-to-JD alignment - transforming content to match job requirements
-4. Style and tone adaptation - optimizing language for both ATS and human readers
-5. Chain-of-thought reasoning - mapping cause-effect relationships in professional experiences
-
-Your task is to rewrite resumes to maximize their ATS match scores while maintaining authenticity."""
+    system_prompt = """You are an expert resume optimization AI focused on making minimal but effective changes.
+Your task is to preserve the original resume's layout while making targeted text changes to improve ATS match score."""
     
-    prompt = f"""REWRITE THE FOLLOWING RESUME TO BETTER MATCH THIS JOB DESCRIPTION:
+    prompt = f"""CAREFULLY ENHANCE THIS RESUME TO BETTER MATCH THIS JOB DESCRIPTION:
 
 JOB DESCRIPTION:
 {job_description}
@@ -206,40 +182,31 @@ JOB DESCRIPTION:
 ORIGINAL RESUME:
 {resume_text}
 
-Rewrite this resume to maximize its ATS match score while maintaining the person's honest work history and qualifications. Apply these specific techniques:
+Important instructions:
+1. Preserve the EXACT layout/structure of the original resume including all formatting
+2. Maintain ALL section headings exactly as they appear in the original
+3. Make targeted text improvements without changing the resume's structure
+4. Keep ALL contact information and personal details unchanged
+5. DO NOT add any introduction or conclusion text (like "Here is the rewritten resume...")
+6. DO NOT include ANY symbols (*, +, •, etc.) or formatting markers
+7. DO NOT add any explanation text about how the resume was optimized
 
-1. Keyword Optimization:
-   - Extract keywords directly from the job description (e.g., technical skills, soft skills, industry terms)
-   - Match them with the candidate's skills and experiences
-   - Integrate them naturally throughout the resume
+Make ONLY these types of subtle text improvements:
+- Replace generic terms with specific keywords from the job description
+- Enhance action verbs to be more impactful and relevant
+- Improve phrasing to better match the intent of the job description
+- Highlight relevant skills and experiences that match the job requirements
+- Ensure proper tense consistency throughout
 
-2. ATS Compliance:
-   - Use simple formatting with clear section headings (e.g., EXPERIENCE, SKILLS, EDUCATION)
-   - Create bullet points for easy parsing by ATS systems
-   - Avoid complex formatting that might confuse parsers
+Do NOT:
+- Change the overall structure or layout
+- Add new sections or bullet points
+- Remove existing content
+- Include any explanation about the optimization process
+- Add any decorative elements or special characters
+- Include any introductory or closing text
 
-3. Semantic Alignment:
-   - Reword content to match how ATS systems scan for intent
-   - Example: Change "worked on UI" to "translated design into code" if that's what the job requires
-   - Align terminology with industry standards mentioned in the job description
-
-4. Modern Resume Style:
-   - Use concise, action-oriented language focused on achievements
-   - Begin bullet points with strong action verbs
-   - Quantify achievements where possible (numbers, percentages, metrics)
-
-5. Role Fit & Human Appeal:
-   - Align tone with what hiring managers seek: curiosity, adaptability, initiative
-   - Highlight experiences most relevant to the specific role
-   - Balance technical details with demonstration of soft skills
-
-Guidelines:
-- Maintain the same overall structure and all factual information
-- Preserve all contact information and personal details
-- Do NOT invent work experience or qualifications not mentioned in the original
-- Format as a complete document ready for submission
-
-The goal is to simulate what advanced AI systems can do using only LLaMA 3's native capabilities for semantic understanding."""
+Provide JUST the enhanced resume text that maintains the exact layout of the original with subtle but effective text improvements."""
 
     try:
         rewritten_resume = call_groq_api(prompt, system_prompt=system_prompt, max_tokens=2000, temperature=0.2)
