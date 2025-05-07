@@ -1,11 +1,34 @@
 import os
-from pdfminer.high_level import extract_text as pdf_extract_text
+import io
+from pdfminer.converter import TextConverter
+from pdfminer.pdfinterp import PDFPageInterpreter
+from pdfminer.pdfinterp import PDFResourceManager
+from pdfminer.pdfpage import PDFPage
 import docx
 import numpy as np
 from io import BytesIO
 from docx import Document
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+
+def pdf_extract_text(file_path):
+    """Extract text from a PDF file using pdfminer"""
+    resource_manager = PDFResourceManager()
+    fake_file_handle = io.StringIO()
+    converter = TextConverter(resource_manager, fake_file_handle)
+    page_interpreter = PDFPageInterpreter(resource_manager, converter)
+    
+    with open(file_path, 'rb') as fh:
+        for page in PDFPage.get_pages(fh, caching=True, check_extractable=True):
+            page_interpreter.process_page(page)
+            
+    text = fake_file_handle.getvalue()
+    
+    # Close resources
+    converter.close()
+    fake_file_handle.close()
+    
+    return text
 
 def extract_text(file_path):
     """
