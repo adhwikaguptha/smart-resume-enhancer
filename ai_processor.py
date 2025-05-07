@@ -169,10 +169,10 @@ AFTER: [improved text]
 def rewrite_resume(resume_text, job_description):
     """
     Use Groq API to rewrite the resume with advanced NLP techniques
-    while preserving the original layout and structure
+    while preserving the original layout and adding strategic enhancements
     """
-    system_prompt = """You are an expert resume optimization AI focused on making minimal but effective changes.
-Your task is to preserve the original resume's layout while making targeted text changes to improve ATS match score."""
+    system_prompt = """You are an expert resume optimization AI focused on strategic improvements that boost ATS scores.
+Your task is to enhance the resume while maintaining its core structure and making targeted optimizations."""
     
     prompt = f"""CAREFULLY ENHANCE THIS RESUME TO BETTER MATCH THIS JOB DESCRIPTION:
 
@@ -182,31 +182,34 @@ JOB DESCRIPTION:
 ORIGINAL RESUME:
 {resume_text}
 
-Important instructions:
-1. Preserve the EXACT layout/structure of the original resume including all formatting
-2. Maintain ALL section headings exactly as they appear in the original
-3. Make targeted text improvements without changing the resume's structure
-4. Keep ALL contact information and personal details unchanged
-5. DO NOT add any introduction or conclusion text (like "Here is the rewritten resume...")
-6. DO NOT include ANY symbols (*, +, •, etc.) or formatting markers
-7. DO NOT add any explanation text about how the resume was optimized
+Important formatting instructions:
+1. Keep ALL section HEADINGS in BOLD format (e.g., "SKILLS", "EXPERIENCE")
+2. Keep ALL contact information and personal details unchanged
+3. DO NOT add any introduction or conclusion text (like "Here is the rewritten resume...")
+4. DO NOT include ANY symbols (*, +, •, etc.) or formatting markers
+5. DO NOT add any explanation text about how the resume was optimized
 
-Make ONLY these types of subtle text improvements:
-- Replace generic terms with specific keywords from the job description
-- Enhance action verbs to be more impactful and relevant
-- Improve phrasing to better match the intent of the job description
-- Highlight relevant skills and experiences that match the job requirements
-- Ensure proper tense consistency throughout
+Make these strategic enhancements:
+1. Add relevant missing skills that match the job description (if appropriate and truthful)
+2. Apply custom NLP techniques:
+   - Part-of-speech tagging to optimize verb usage (e.g., change "developed UI" to "UI Developer")
+   - Semantic similarity matching for paraphrased matches (e.g., reword "built user dashboards" as "translated designs into code")
+3. Enhance existing content with more impactful language:
+   - Use stronger action verbs aligned with the job description
+   - Add relevant industry keywords naturally throughout the text
+   - Quantify achievements where possible (e.g., add percentages, metrics)
+4. Improve section organization:
+   - Place most relevant skills and experiences earlier in each list
+   - Group related skills logically to improve readability
+   - Maintain appropriate hierarchy within sections
 
-Do NOT:
-- Change the overall structure or layout
-- Add new sections or bullet points
-- Remove existing content
-- Include any explanation about the optimization process
-- Add any decorative elements or special characters
-- Include any introductory or closing text
+The goal is to create a more optimized resume that:
+- Preserves the original resume's core structure and truthful content
+- Strategically enhances content to boost ATS matching score
+- Maintains a professional, clean appearance with proper formatting
+- Naturally incorporates relevant keywords without keyword stuffing
 
-Provide JUST the enhanced resume text that maintains the exact layout of the original with subtle but effective text improvements."""
+Provide JUST the enhanced resume with no introduction or conclusion text."""
 
     try:
         rewritten_resume = call_groq_api(prompt, system_prompt=system_prompt, max_tokens=2000, temperature=0.2)

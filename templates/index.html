@@ -110,7 +110,22 @@
             </div>
             <div class="card-body">
                 <div class="rewritten-resume-content">
-                    {{ rewritten_resume|safe|replace('\n', '<br>') }}
+                    {{ rewritten_resume|safe|replace('\n', '<br>')
+                      |replace('EXPERIENCE', '<strong>EXPERIENCE</strong>')
+                      |replace('EDUCATION', '<strong>EDUCATION</strong>')
+                      |replace('PROJECTS', '<strong>PROJECTS</strong>')
+                      |replace('SKILLS', '<strong>SKILLS</strong>')
+                      |replace('CERTIFICATIONS & WORKSHOPS', '<strong>CERTIFICATIONS & WORKSHOPS</strong>')
+                      |replace('EXTRACURRICULARS', '<strong>EXTRACURRICULARS</strong>')
+                      |replace('Programming Languages:', '<span class="skill-category">Programming Languages:</span>')
+                      |replace('Tools & Technologies:', '<span class="skill-category">Tools & Technologies:</span>')
+                      |replace('Soft Skills:', '<span class="skill-category">Soft Skills:</span>')
+                      |replace('Languages:', '<span class="skill-category">Languages:</span>')
+                      |replace('Frontend Developer Intern', '<span class="job-title">Frontend Developer Intern</span>')
+                      |replace('Event Tech Innovator', '<span class="project-title">Event Tech Innovator</span>')
+                      |replace('Real-time Emergency Response Application', '<span class="project-title">Real-time Emergency Response Application</span>')
+                      |replace('Student Feedback Analyzer', '<span class="project-title">Student Feedback Analyzer</span>')
+                    }}
                 </div>
             </div>
         </div>

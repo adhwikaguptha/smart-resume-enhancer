@@ -32,6 +32,40 @@ body {
     font-size: 1.1rem;
 }
 
+/* Resume Skills formatting */
+.rewritten-resume-content strong {
+    color: var(--bs-primary);
+    font-size: 1.2rem;
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+/* Skills section enhancement */
+.rewritten-resume-content span.skill-category {
+    font-weight: 600;
+    color: var(--bs-gray-700);
+}
+
+/* Job title styling */
+.rewritten-resume-content span.job-title {
+    font-weight: 500;
+    color: var(--bs-dark);
+}
+
+/* Project title styling */
+.rewritten-resume-content span.project-title {
+    font-weight: 500;
+    color: var(--bs-indigo);
+}
+
+/* Education styling */
+.rewritten-resume-content span.education-detail {
+    font-style: italic;
+    color: var(--bs-gray-700);
+}
+
 /* Score styling */
 .text-danger {
     color: var(--bs-danger) !important;
