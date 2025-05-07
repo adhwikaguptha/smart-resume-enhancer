@@ -75,11 +75,38 @@ def analyze_resume():
             try:
                 resume_text = document_processor.extract_text(file_path)
                 
-                # Calculate initial ATS score
-                initial_score = document_processor.calculate_ats_score(resume_text, job_description)
-                initial_score_normalized = int(initial_score * 100)
+                # Get detailed match analysis using advanced semantic techniques
+                try:
+                    match_analysis = ai_processor.calculate_semantic_matching_score(resume_text, job_description)
+                    if "Unable to calculate matching score" in match_analysis:
+                        logger.warning("Failed to calculate detailed matching score, falling back to basic algorithm")
+                        # Fall back to basic algorithm if the advanced one fails
+                        initial_score = document_processor.calculate_ats_score(resume_text, job_description)
+                        initial_score_normalized = int(initial_score * 100)
+                    else:
+                        # Extract the score from the analysis (format is "MATCH SCORE: XX%")
+                        try:
+                            score_line = [line for line in match_analysis.split('\n') if 'MATCH SCORE' in line]
+                            if score_line:
+                                score_text = score_line[0].split(':')[1].strip()
+                                initial_score_normalized = int(score_text.replace('%', ''))
+                                initial_score = initial_score_normalized / 100
+                            else:
+                                # Fall back if we can't parse the score
+                                initial_score = document_processor.calculate_ats_score(resume_text, job_description)
+                                initial_score_normalized = int(initial_score * 100)
+                        except Exception as e:
+                            logger.error(f"Error parsing semantic match score: {str(e)}")
+                            initial_score = document_processor.calculate_ats_score(resume_text, job_description)
+                            initial_score_normalized = int(initial_score * 100)
+                except Exception as e:
+                    logger.error(f"Error with semantic match analysis: {str(e)}")
+                    # Fall back to basic algorithm if the advanced one fails
+                    initial_score = document_processor.calculate_ats_score(resume_text, job_description)
+                    initial_score_normalized = int(initial_score * 100)
+                    match_analysis = "Unable to generate detailed match analysis."
                 
-                # Get AI suggestions
+                # Get advanced AI suggestions using part-of-speech tagging and semantic matching
                 try:
                     suggestions = ai_processor.get_improvement_suggestions(resume_text, job_description)
                     # Check if suggestions contain an error message
@@ -91,7 +118,7 @@ def analyze_resume():
                     logger.error(f"Error getting suggestions: {str(e)}")
                     suggestions = "Unable to generate suggestions at this time."
                 
-                # Get rewritten resume
+                # Get improved resume using advanced NLP techniques
                 try:
                     rewritten_resume = ai_processor.rewrite_resume(resume_text, job_description)
                     # Check if rewritten_resume contains an error message
@@ -102,9 +129,23 @@ def analyze_resume():
                         new_score = initial_score  # Use the same score
                         new_score_normalized = initial_score_normalized
                     else:
-                        # Calculate new ATS score
-                        new_score = document_processor.calculate_ats_score(rewritten_resume, job_description)
-                        new_score_normalized = int(new_score * 100)
+                        # Try to get a detailed analysis of the rewritten resume
+                        try:
+                            new_match_analysis = ai_processor.calculate_semantic_matching_score(rewritten_resume, job_description)
+                            score_line = [line for line in new_match_analysis.split('\n') if 'MATCH SCORE' in line]
+                            if score_line:
+                                score_text = score_line[0].split(':')[1].strip()
+                                new_score_normalized = int(score_text.replace('%', ''))
+                                new_score = new_score_normalized / 100
+                            else:
+                                # Fall back to basic algorithm
+                                new_score = document_processor.calculate_ats_score(rewritten_resume, job_description)
+                                new_score_normalized = int(new_score * 100)
+                        except Exception as e:
+                            logger.error(f"Error with new semantic match analysis: {str(e)}")
+                            # Fall back to basic algorithm
+                            new_score = document_processor.calculate_ats_score(rewritten_resume, job_description)
+                            new_score_normalized = int(new_score * 100)
                 except Exception as e:
                     logger.error(f"Error rewriting resume: {str(e)}")
                     flash("Unable to rewrite the resume. Please try again later.")
@@ -122,6 +163,13 @@ def analyze_resume():
                 session['initial_score'] = initial_score_normalized
                 session['new_score'] = new_score_normalized
                 
+                # Pass the match analysis to the template if available
+                if 'match_analysis' in locals() and "Unable to generate" not in match_analysis:
+                    has_detailed_analysis = True
+                else:
+                    has_detailed_analysis = False
+                    match_analysis = "Detailed analysis not available."
+                
                 return render_template('index.html', 
                                       initial_score=initial_score_normalized,
                                       new_score=new_score_normalized,
@@ -129,6 +177,8 @@ def analyze_resume():
                                       rewritten_resume=rewritten_resume,
                                       resume_text=resume_text,
                                       job_description=job_description,
+                                      match_analysis=match_analysis,
+                                      has_detailed_analysis=has_detailed_analysis,
                                       analysis_complete=True)
                 
             except Exception as e:

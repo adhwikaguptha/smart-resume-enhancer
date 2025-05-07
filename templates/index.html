@@ -30,7 +30,7 @@
         {% if analysis_complete %}
         <div class="card mb-4">
             <div class="card-header bg-secondary">
-                <h2 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>ATS Score Analysis</h2>
+                <h2 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>Advanced ATS Score Analysis</h2>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -69,14 +69,30 @@
                         </div>
                     </div>
                 </div>
+                
+                {% if has_detailed_analysis %}
+                <div class="mt-4">
+                    <h4 class="mb-3">Detailed Analysis</h4>
+                    <div class="detailed-analysis card">
+                        <div class="card-body">
+                            <div class="analysis-content">
+                                {{ match_analysis|safe|replace('\n', '<br>')|replace('- ', '<span class="text-primary me-2">•</span>')|replace('Key strengths:', '<strong class="text-success">Key strengths:</strong>')|replace('Gap areas:', '<strong class="text-danger">Gap areas:</strong>')|replace('Keyword analysis:', '<strong class="text-primary">Keyword analysis:</strong>') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-header bg-secondary">
-                <h2 class="card-title mb-0"><i class="fas fa-lightbulb me-2"></i>Suggested Improvements</h2>
+                <h2 class="card-title mb-0"><i class="fas fa-lightbulb me-2"></i>AI-Powered Improvement Suggestions</h2>
             </div>
             <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-robot me-2"></i> These suggestions are generated using advanced semantic analysis, part-of-speech tagging, and TF-IDF matching to identify optimal improvements.
+                </div>
                 <div class="suggestions-content">
                     {{ suggestions|safe|replace('\n', '<br>')|replace('•', '<span class="text-primary me-2">•</span>')|replace('- ', '<span class="text-primary me-2">•</span>') }}
                 </div>
@@ -85,7 +101,7 @@
 
         <div class="card mb-4">
             <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
-                <h2 class="card-title mb-0"><i class="fas fa-file-alt me-2"></i>Optimized Resume</h2>
+                <h2 class="card-title mb-0"><i class="fas fa-file-alt me-2"></i>AI-Optimized Resume</h2>
                 <div class="btn-group">
                     <a href="{{ url_for('download_resume', format='docx') }}" class="btn btn-sm btn-outline-light">
                         <i class="fas fa-file-word me-1"></i> Download DOCX
@@ -96,6 +112,9 @@
                 </div>
             </div>
             <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-magic me-2"></i> Your resume has been optimized using semantic matching, part-of-speech optimization, and ATS-friendly formatting techniques.
+                </div>
                 <div class="rewritten-resume-content">
                     {{ rewritten_resume|safe|replace('\n', '<br>') }}
                 </div>
